@@ -87,7 +87,7 @@ export default function ProjectPage() {
         )}
         {project?.chapters?.map((ch: Chapter) => (
           <div key={ch.id} className="flex items-center gap-3 p-4 border rounded-lg hover:bg-accent/50 transition-colors group cursor-pointer"
-            onClick={() => router.push(`/${projectId}/${ch.id}`)}>
+            role="button" tabIndex={0} onClick={() => router.push(`/${projectId}/${ch.id}`)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); router.push(`/${projectId}/${ch.id}`) } }}>
             <FileText className="w-4 h-4 shrink-0 text-muted-foreground" />
             <span className="flex-1">{ch.title}</span>
             <span className="text-xs text-muted-foreground">{ch.word_count || 0} 字</span>

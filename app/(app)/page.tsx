@@ -106,7 +106,7 @@ export default function ProjectsPage() {
         <div className="space-y-3">
           {projects.map(project => (
             <div key={project.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors group">
-              <div className="flex-1 cursor-pointer" onClick={() => router.push(`/${project.id}`)}>
+              <div className="flex-1 cursor-pointer" role="button" tabIndex={0} onClick={() => router.push(`/${project.id}`)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); router.push(`/${project.id}`) } }}>
                 <h3 className="font-medium">{project.title}</h3>
                 <p className="text-sm text-muted-foreground">{project.description || '暂无描述'}</p>
               </div>
