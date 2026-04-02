@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { PenLine, RefreshCw, Lightbulb, Settings, Menu } from 'lucide-react'
+import { PenLine, RefreshCw, Lightbulb, Settings, Menu, User, Map } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -10,13 +10,19 @@ const AI_TOOLS = [
   { id: 'brainstorm', label: '头脑风暴', icon: Lightbulb },
 ] as const
 
+const PROJECT_TOOLS = [
+  { id: 'characters', label: '角色', icon: User },
+  { id: 'worldbuilding', label: '设定', icon: Map },
+] as const
+
 interface TopBarProps {
   projectTitle?: string
   onToolClick: (tool: string) => void
+  onProjectToolClick: (tool: string) => void
   onMenuClick: () => void
 }
 
-export function TopBar({ projectTitle, onToolClick, onMenuClick }: TopBarProps) {
+export function TopBar({ projectTitle, onToolClick, onProjectToolClick, onMenuClick }: TopBarProps) {
   return (
     <header className="h-12 border-b flex items-center px-4 gap-2 shrink-0">
       <Button variant="ghost" size="icon" onClick={onMenuClick} title="项目列表">
@@ -36,6 +42,20 @@ export function TopBar({ projectTitle, onToolClick, onMenuClick }: TopBarProps) 
           size="sm"
           onClick={() => onToolClick(id)}
           className={cn('gap-1.5', !projectTitle && 'opacity-50 pointer-events-none')}
+        >
+          <Icon className="w-3.5 h-3.5" />
+          <span className="text-xs">{label}</span>
+        </Button>
+      ))}
+
+      <div className="h-4 w-px bg-border mx-1" />
+      {PROJECT_TOOLS.map(({ id, label, icon: Icon }) => (
+        <Button
+          key={id}
+          variant="ghost"
+          size="sm"
+          onClick={() => onProjectToolClick(id)}
+          className="gap-1.5"
         >
           <Icon className="w-3.5 h-3.5" />
           <span className="text-xs">{label}</span>

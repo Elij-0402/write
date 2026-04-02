@@ -23,6 +23,7 @@ export default function ChapterEditorPage() {
   const [aiContent, setAiContent] = useState('')
   const [aiLoading, setAiLoading] = useState(false)
   const [aiError, setAiError] = useState('')
+  const [brainstormInput, setBrainstormInput] = useState('')
   const [editingTitle, setEditingTitle] = useState(false)
   const saveTimerRef = useRef<NodeJS.Timeout>()
   const lastSavedRef = useRef('')
@@ -61,18 +62,104 @@ export default function ChapterEditorPage() {
     return () => clearTimeout(saveTimerRef.current)
   }, [content, saveChapter])
 
-  function handleToolClick(tool: string) {
+  async function handleToolClick(tool: string) {
     setActiveTool(tool)
+
+    if (tool === 'brainstorm') {
+      setAiContent('')
+      setAiError('')
+      setPanelOpen(true)
+      return
+    }
+
+    if (tool === 'write') {
+      const store = useEditorStore.getState()
+      const text = store.content ? extractTextFromJson(store.content) : ''
+      const context = text.slice(-200)
+      if (!context.trim()) { setAiError('请先在编辑器中输入一些文字'); setPanelOpen(true); return }
+      setPanelOpen(true)
+      setAiLoading(true)
+      setAiError('')
+      setAiContent('')
+      try {
+        const res = await fetch('/api/ai/write', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ context, wordCount: 300 }),
+        })
+        const data = await res.json()
+        if (data.error) setAiError(data.error)
+        else setAiContent(data.result)
+      } catch (e: any) { setAiError(e.message) }
+      setAiLoading(false)
+      return
+    }
+
+    if (tool === 'rewrite') {
+      const selectedText = editorRef.current?.state?.selection?.content()?.content?.firstChild?.textContent || ''
+      if (!selectedText || selectedText.trim().length < 5) {
+        alert('请先选中要改写的文字（至少 5 个字）')
+        return
+      }
+      setPanelOpen(true)
+      setAiLoading(true)
+      setAiError('')
+      setAiContent('')
+      try {
+        const res = await fetch('/api/ai/rewrite', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ selectedText }),
+        })
+        const data = await res.json()
+        if (data.error) setAiError(data.error)
+        else setAiContent(data.result)
+      } catch (e: any) { setAiError(e.message) }
+      setAiLoading(false)
+      return
+    }
+
     setPanelOpen(true)
   }
 
+  async function handleBrainstormSubmit() {
+    if (!brainstormInput.trim()) return
+    setAiLoading(true)
+    setAiError('')
+    setAiContent('')
+    try {
+      const res = await fetch('/api/ai/brainstorm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic: brainstormInput }),
+      })
+      const data = await res.json()
+      if (data.error) setAiError(data.error)
+      else setAiContent(data.result)
+    } catch (e: any) { setAiError(e.message) }
+    setAiLoading(false)
+  }
+
   function handleInsert() {
-    // 插入 AI 内容到编辑器
-    if (editorRef.current && aiContent) {
-      editorRef.current?.commands?.insertContent(aiContent)
-    }
+    if (!aiContent || !editorRef.current) return
+    editorRef.current.commands.insertContent(aiContent)
     setPanelOpen(false)
     setAiContent('')
+  }
+
+  function extractTextFromJson(jsonStr: string): string {
+    try {
+      const doc = JSON.parse(jsonStr)
+      function getText(node: any): string {
+        if (!node) return ''
+        if (typeof node.text === 'string') return node.text
+        if (node.content) return node.content.map(getText).join('')
+        return ''
+      }
+      return getText(doc)
+    } catch {
+      return ''
+    }
   }
 
   async function handleTitleSave(newTitle: string) {
@@ -86,6 +173,7 @@ export default function ChapterEditorPage() {
       <TopBar
         projectTitle={project?.title}
         onToolClick={handleToolClick}
+        onProjectToolClick={() => {}}
         onMenuClick={() => router.push(`/p/${projectId}`)}
       />
 
@@ -117,6 +205,7 @@ export default function ChapterEditorPage() {
           onChange={setContent}
           onWordCountChange={setWordCount}
           placeholder="开始你的故事..."
+          editorRef={editorRef}
         />
       </div>
 
@@ -136,6 +225,9 @@ export default function ChapterEditorPage() {
         onChange={setAiContent}
         onInsert={handleInsert}
         mode={activeTool as any}
+        brainstormInput={brainstormInput}
+        onBrainstormInputChange={setBrainstormInput}
+        onBrainstormSubmit={handleBrainstormSubmit}
       />
     </div>
   )

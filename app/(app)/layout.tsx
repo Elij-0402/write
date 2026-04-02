@@ -28,7 +28,7 @@ function AppLayoutInner({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="h-screen flex flex-col">
-      <TopBar onToolClick={handleToolClick} onMenuClick={() => {}} />
+      <TopBar onToolClick={handleToolClick} onProjectToolClick={() => {}} onMenuClick={() => {}} />
       <div className="flex-1 overflow-hidden">
         {children}
       </div>
