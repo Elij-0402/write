@@ -1,5 +1,6 @@
 'use client'
 import { useState, useCallback } from 'react'
+import { useParams, useRouter } from 'next/navigation'
 import { TopBar } from '@/components/top-bar'
 import { SidePanel } from '@/components/side-panel'
 import { useSupabase } from '@/components/providers'
@@ -7,6 +8,8 @@ import { Providers } from '@/components/providers'
 
 function AppLayoutInner({ children }: { children: React.ReactNode }) {
   const { loading } = useSupabase()
+  const params = useParams<{ projectId?: string }>()
+  const router = useRouter()
   const [panelOpen, setPanelOpen] = useState(false)
   const [activeTool, setActiveTool] = useState('')
   const [aiContent, setAiContent] = useState('')
@@ -19,6 +22,11 @@ function AppLayoutInner({ children }: { children: React.ReactNode }) {
     setPanelOpen(true)
   }, [])
 
+  const handleProjectToolClick = useCallback((tool: string) => {
+    if (!params.projectId) return
+    router.push(`/${params.projectId}/${tool}`)
+  }, [params.projectId, router])
+
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -29,7 +37,7 @@ function AppLayoutInner({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="h-screen flex flex-col">
-      <TopBar onToolClick={handleToolClick} onProjectToolClick={() => {}} onMenuClick={() => {}} />
+      <TopBar onToolClick={handleToolClick} onProjectToolClick={handleProjectToolClick} onMenuClick={() => router.push('/')} />
       <div className="flex-1 overflow-hidden">
         {children}
       </div>
