@@ -27,11 +27,12 @@ export interface Database {
           user_id: string
           title: string
           description: string | null
+          style_guide: string | null
           created_at: string
           updated_at: string
         }
-        Insert: { user_id: string; title: string; description?: string }
-        Update: { title?: string; description?: string }
+        Insert: { user_id: string; title: string; description?: string; style_guide?: string }
+        Update: { title?: string; description?: string; style_guide?: string }
       }
       chapters: {
         Row: {

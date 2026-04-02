@@ -51,7 +51,7 @@ export function SidePanel({
               <span className="text-sm">正在思考...</span>
             </div>
           ) : error ? (
-            <div className="text-sm text-red-500 p-4 bg-red-50 dark:bg-red-950 rounded">{error}</div>
+            <div className="text-sm text-destructive p-4 bg-destructive/10 rounded">{error}</div>
           ) : (
             <Textarea
               value={value}
@@ -68,6 +68,11 @@ export function SidePanel({
               插入到光标位置
             </Button>
             <Button variant="outline" onClick={onClose}>取消</Button>
+          </div>
+        )}
+        {mode === 'brainstorm' && (
+          <div className="px-4 py-3 border-t">
+            <Button variant="outline" onClick={onClose} className="w-full">关闭</Button>
           </div>
         )}
       </div>

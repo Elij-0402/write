@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Plus, Trash2, BookOpen, Loader2 } from 'lucide-react'
 import type { Project } from '@/types/database'
 import { useRouter } from 'next/navigation'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 
 export default function ProjectsPage() {
@@ -70,9 +70,12 @@ export default function ProjectsPage() {
           <DialogTrigger asChild>
             <Button><Plus className="w-4 h-4 mr-1" /> 新建书籍</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent describedBy="create-book-description">
             <DialogHeader>
               <DialogTitle>创建新书籍</DialogTitle>
+              <DialogDescription id="create-book-description">
+                输入书名和简介来创建一本新书
+              </DialogDescription>
             </DialogHeader>
             <form onSubmit={e => { e.preventDefault(); createProject() }} className="space-y-4 pt-4">
               <div>
@@ -83,7 +86,7 @@ export default function ProjectsPage() {
                 <Label>简介（可选）</Label>
                 <Input value={newDescription} onChange={e => setNewDescription(e.target.value)} placeholder="一句话描述你的故事" />
               </div>
-              {error && <p className="text-sm text-red-500">{error}</p>}
+              {error && <p className="text-sm text-destructive">{error}</p>}
               <Button type="submit" className="w-full" disabled={!newTitle.trim() || creating}>
                 {creating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />创建中...</> : '创建'}
               </Button>
@@ -102,15 +105,15 @@ export default function ProjectsPage() {
       ) : (
         <div className="space-y-3">
           {projects.map(project => (
-            <div key={project.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors group">
-              <div className="flex-1 cursor-pointer" onClick={() => router.push(`/${project.id}`)}>
+            <div key={project.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-surface-warm transition-colors group">
+              <div className="flex-1 cursor-pointer" role="button" tabIndex={0} onClick={() => router.push(`/${project.id}`)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); router.push(`/${project.id}`) } }}>
                 <h3 className="font-medium">{project.title}</h3>
                 <p className="text-sm text-muted-foreground">{project.description || '暂无描述'}</p>
               </div>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100">
-                    <Trash2 className="w-4 h-4 text-red-500" />
+                    <Trash2 className="w-4 h-4 text-destructive" />
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
@@ -122,7 +125,7 @@ export default function ProjectsPage() {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>取消</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => deleteProject(project.id)} className="bg-red-600 hover:bg-red-700">
+                    <AlertDialogAction onClick={() => deleteProject(project.id)} className="bg-destructive hover:bg-destructive/90">
                       删除
                     </AlertDialogAction>
                   </AlertDialogFooter>

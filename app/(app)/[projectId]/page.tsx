@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Plus, FileText, ArrowLeft, Trash2 } from 'lucide-react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import type { Project, Chapter } from '@/types/database'
 
 export default function ProjectPage() {
@@ -63,8 +64,13 @@ export default function ProjectPage() {
           <DialogTrigger asChild>
             <Button><Plus className="w-4 h-4 mr-1" /> 新建章节</Button>
           </DialogTrigger>
-          <DialogContent>
-            <DialogHeader><DialogTitle>创建新章节</DialogTitle></DialogHeader>
+          <DialogContent describedBy="create-chapter-description">
+            <DialogHeader>
+              <DialogTitle>创建新章节</DialogTitle>
+              <DialogDescription id="create-chapter-description">
+                输入章节标题来创建新章节
+              </DialogDescription>
+            </DialogHeader>
             <div className="space-y-4 pt-4">
               <div><Label>章节标题</Label><Input value={newTitle} onChange={e => setNewTitle(e.target.value)} autoFocus /></div>
               <Button onClick={createChapter} className="w-full">创建</Button>
@@ -81,15 +87,33 @@ export default function ProjectPage() {
           </div>
         )}
         {project?.chapters?.map((ch: Chapter) => (
-          <div key={ch.id} className="flex items-center gap-3 p-4 border rounded-lg hover:bg-accent/50 transition-colors group cursor-pointer"
-            onClick={() => router.push(`/${projectId}/${ch.id}`)}>
+          <div key={ch.id} className="flex items-center gap-3 p-4 border rounded-lg hover:bg-surface-warm transition-colors group cursor-pointer"
+            role="button" tabIndex={0} onClick={() => router.push(`/${projectId}/${ch.id}`)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); router.push(`/${projectId}/${ch.id}`) } }}>
             <FileText className="w-4 h-4 shrink-0 text-muted-foreground" />
             <span className="flex-1">{ch.title}</span>
             <span className="text-xs text-muted-foreground">{ch.word_count || 0} 字</span>
-            <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 shrink-0"
-              onClick={e => { e.stopPropagation(); deleteChapter(ch.id) }}>
-              <Trash2 className="w-4 h-4 text-red-500" />
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 shrink-0"
+                  onClick={e => e.stopPropagation()}>
+                  <Trash2 className="w-4 h-4 text-destructive" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>确认删除</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    确定要删除章节《{ch.title}》吗？此操作不可撤销。
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>取消</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => deleteChapter(ch.id)} className="bg-destructive hover:bg-destructive/90">
+                    删除
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         ))}
       </div>

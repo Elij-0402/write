@@ -1,21 +1,41 @@
 import { NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 import { getAIProvider } from '@/lib/ai/deepseek'
+import { assembleContext, createEmptyContext } from '@/lib/ai/context-assembler'
 import { buildBrainstormPrompt } from '@/lib/prompts/brainstorm'
 
 export async function POST(req: Request) {
   try {
-    const { topic } = await req.json()
+    const { chapterId, topic } = await req.json()
 
     if (!topic || topic.trim().length < 2) {
       return NextResponse.json({ error: '请输入想探索的内容' }, { status: 400 })
     }
 
-    const provider = getAIProvider()
-    const prompt = buildBrainstormPrompt(topic)
-    const result = await provider.complete(prompt, { max_tokens: 1536, temperature: 0.9 })
+    if (chapterId) {
+      const supabase = await createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+      const ctx = await assembleContext(supabase, chapterId, Infinity, 'brainstorm')
+      const provider = getAIProvider()
+      const prompt = buildBrainstormPrompt(topic, ctx)
+      const result = await provider.complete(prompt, { max_tokens: 1536, temperature: 0.9 })
+      return NextResponse.json({ result: result.trim(), metadata: ctx.metadata })
+    }
+
+    // Fallback: no chapter context (e.g. called from non-editor page)
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const provider = getAIProvider()
+    const emptyCtx = createEmptyContext('brainstorm')
+    const prompt = buildBrainstormPrompt(topic, emptyCtx)
+    const result = await provider.complete(prompt, { max_tokens: 1536, temperature: 0.9 })
     return NextResponse.json({ result: result.trim() })
   } catch (err: any) {
+    console.error('AI brainstorm error:', err)
     return NextResponse.json({ error: err.message || 'AI 生成失败' }, { status: 500 })
   }
 }

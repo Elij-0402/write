@@ -104,7 +104,7 @@ export default function WorldbuildingPage() {
                   </p>
                 </div>
                 <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100" onClick={() => deleteItem(item.id)}>
-                  <Trash2 className="w-4 h-4 text-red-500" />
+                  <Trash2 className="w-4 h-4 text-destructive" />
                 </Button>
               </div>
             </div>

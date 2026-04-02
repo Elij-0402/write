@@ -94,7 +94,7 @@ export default function CharactersPage() {
                   </p>
                 </div>
                 <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100" onClick={() => deleteCharacter(ch.id)}>
-                  <Trash2 className="w-4 h-4 text-red-500" />
+                  <Trash2 className="w-4 h-4 text-destructive" />
                 </Button>
               </div>
             </div>
