@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Plus, FileText, ArrowLeft, Trash2 } from 'lucide-react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog'
 import type { Project, Chapter } from '@/types/database'
 
 export default function ProjectPage() {
@@ -63,8 +63,13 @@ export default function ProjectPage() {
           <DialogTrigger asChild>
             <Button><Plus className="w-4 h-4 mr-1" /> 新建章节</Button>
           </DialogTrigger>
-          <DialogContent>
-            <DialogHeader><DialogTitle>创建新章节</DialogTitle></DialogHeader>
+          <DialogContent describedBy="create-chapter-description">
+            <DialogHeader>
+              <DialogTitle>创建新章节</DialogTitle>
+              <DialogDescription id="create-chapter-description">
+                输入章节标题来创建新章节
+              </DialogDescription>
+            </DialogHeader>
             <div className="space-y-4 pt-4">
               <div><Label>章节标题</Label><Input value={newTitle} onChange={e => setNewTitle(e.target.value)} autoFocus /></div>
               <Button onClick={createChapter} className="w-full">创建</Button>

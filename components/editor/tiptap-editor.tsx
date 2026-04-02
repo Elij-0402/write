@@ -19,6 +19,7 @@ export function TiptapEditor({ content, onChange, onWordCountChange, placeholder
   const lastSavedRef = useRef(content)
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
       Placeholder.configure({ placeholder: placeholder || '开始写作...' }),

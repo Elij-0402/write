@@ -73,8 +73,8 @@ export default function ChapterEditorPage() {
     }
 
     if (tool === 'write') {
-      const store = useEditorStore.getState()
-      const text = store.content ? extractTextFromJson(store.content) : ''
+      const editor = editorRef.current
+      const text = editor?.getText() || ''
       const context = text.slice(-200)
       if (!context.trim()) { setAiError('请先在编辑器中输入一些文字'); setPanelOpen(true); return }
       setPanelOpen(true)

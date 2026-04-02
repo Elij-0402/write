@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Plus, Trash2, BookOpen, Loader2 } from 'lucide-react'
 import type { Project } from '@/types/database'
 import { useRouter } from 'next/navigation'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 
 export default function ProjectsPage() {
@@ -70,9 +70,12 @@ export default function ProjectsPage() {
           <DialogTrigger asChild>
             <Button><Plus className="w-4 h-4 mr-1" /> 新建书籍</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent describedBy="create-book-description">
             <DialogHeader>
               <DialogTitle>创建新书籍</DialogTitle>
+              <DialogDescription id="create-book-description">
+                输入书名和简介来创建一本新书
+              </DialogDescription>
             </DialogHeader>
             <form onSubmit={e => { e.preventDefault(); createProject() }} className="space-y-4 pt-4">
               <div>
