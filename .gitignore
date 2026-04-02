@@ -4,3 +4,4 @@ tsconfig.tsbuildinfo
 .claude
 .env.local
 *.log
+.gstack/
