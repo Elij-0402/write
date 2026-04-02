@@ -65,3 +65,42 @@ CREATE POLICY "Users can CRUD chapters in own projects" ON public.chapters
   ) WITH CHECK (
     EXISTS (SELECT 1 FROM public.projects WHERE id = project_id AND user_id = auth.uid())
   );
+
+-- 角色卡
+CREATE TABLE IF NOT EXISTS public.characters (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID REFERENCES public.projects ON DELETE CASCADE NOT NULL,
+  name TEXT NOT NULL DEFAULT '未命名角色',
+  traits JSONB DEFAULT '{"appearance":"","personality":"","background":"","motivation":"","relationships":""}'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 设定卡
+CREATE TABLE IF NOT EXISTS public.worldbuilding (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID REFERENCES public.projects ON DELETE CASCADE NOT NULL,
+  category TEXT NOT NULL DEFAULT 'general',
+  title TEXT NOT NULL DEFAULT '新设定',
+  content TEXT DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- RLS for new tables
+ALTER TABLE public.characters ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.worldbuilding ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can CRUD characters in own projects" ON public.characters
+  FOR ALL USING (
+    EXISTS (SELECT 1 FROM public.projects WHERE id = project_id AND user_id = auth.uid())
+  ) WITH CHECK (
+    EXISTS (SELECT 1 FROM public.projects WHERE id = project_id AND user_id = auth.uid())
+  );
+
+CREATE POLICY "Users can CRUD worldbuilding in own projects" ON public.worldbuilding
+  FOR ALL USING (
+    EXISTS (SELECT 1 FROM public.projects WHERE id = project_id AND user_id = auth.uid())
+  ) WITH CHECK (
+    EXISTS (SELECT 1 FROM public.projects WHERE id = project_id AND user_id = auth.uid())
+  );

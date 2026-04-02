@@ -1,5 +1,13 @@
 export type Json = string | number | boolean | null | { [key: string]: Json } | Json[]
 
+export type CharacterTraits = {
+  appearance: string
+  personality: string
+  background: string
+  motivation: string
+  relationships: string
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -39,6 +47,31 @@ export interface Database {
         Insert: { project_id: string; title: string; content?: Json; sort_order?: number }
         Update: { title?: string; content?: Json; word_count?: number; sort_order?: number }
       }
+      characters: {
+        Row: {
+          id: string
+          project_id: string
+          name: string
+          traits: CharacterTraits
+          created_at: string
+          updated_at: string
+        }
+        Insert: { project_id: string; name?: string; traits?: CharacterTraits }
+        Update: { name?: string; traits?: CharacterTraits }
+      }
+      worldbuilding: {
+        Row: {
+          id: string
+          project_id: string
+          category: string
+          title: string
+          content: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: { project_id: string; category?: string; title?: string; content?: string }
+        Update: { category?: string; title?: string; content?: string }
+      }
     }
   }
 }
@@ -46,3 +79,5 @@ export interface Database {
 export type Profile = Database['public']['Tables']['profiles']['Row']
 export type Project = Database['public']['Tables']['projects']['Row']
 export type Chapter = Database['public']['Tables']['chapters']['Row']
+export type Character = Database['public']['Tables']['characters']['Row']
+export type Worldbuilding = Database['public']['Tables']['worldbuilding']['Row']
