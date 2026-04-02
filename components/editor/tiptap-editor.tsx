@@ -53,6 +53,8 @@ export function TiptapEditor({ content, onChange, onWordCountChange, placeholder
       } catch {
         editor.commands.setContent('', false)
       }
+      const text = editor.getText()
+      onWordCountChange(countChineseWords(text))
     }
   }, [content, editor])
 
