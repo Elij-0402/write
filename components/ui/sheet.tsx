@@ -8,9 +8,10 @@ interface SheetProps {
   onClose: () => void
   children: React.ReactNode
   className?: string
+  side?: 'left' | 'right'
 }
 
-export function Sheet({ open, onClose, children, className }: SheetProps) {
+export function Sheet({ open, onClose, children, className, side = 'right' }: SheetProps) {
   React.useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     if (open) document.addEventListener('keydown', handleEsc)
@@ -23,7 +24,9 @@ export function Sheet({ open, onClose, children, className }: SheetProps) {
     <>
       <div className="fixed inset-0 z-40 bg-black/40" onClick={onClose} />
       <div className={cn(
-        'fixed right-0 top-0 z-50 h-full w-[420px] bg-background border-l shadow-xl flex flex-col',
+        'fixed top-0 z-50 h-full bg-background shadow-xl flex flex-col',
+        side === 'right' && 'right-0 w-[420px] border-l',
+        side === 'left' && 'left-0 w-[280px] border-r',
         className
       )}>
         {children}

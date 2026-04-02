@@ -3,6 +3,7 @@ import { useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { TopBar } from '@/components/top-bar'
 import { SidePanel } from '@/components/side-panel'
+import { MobileMenu } from '@/components/mobile-menu'
 import { useSupabase } from '@/components/providers'
 import { Providers } from '@/components/providers'
 
@@ -11,6 +12,7 @@ function AppLayoutInner({ children }: { children: React.ReactNode }) {
   const params = useParams<{ projectId?: string }>()
   const router = useRouter()
   const [panelOpen, setPanelOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const [activeTool, setActiveTool] = useState('')
   const [aiContent, setAiContent] = useState('')
   const [aiLoading, setAiLoading] = useState(false)
@@ -27,6 +29,10 @@ function AppLayoutInner({ children }: { children: React.ReactNode }) {
     router.push(`/${params.projectId}/${tool}`)
   }, [params.projectId, router])
 
+  const handleMenuClick = useCallback(() => {
+    setMenuOpen(true)
+  }, [])
+
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -37,7 +43,15 @@ function AppLayoutInner({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="h-screen flex flex-col">
-      <TopBar onToolClick={handleToolClick} onProjectToolClick={handleProjectToolClick} onMenuClick={() => router.push('/')} settingsHref="/" />
+      <TopBar onToolClick={handleToolClick} onProjectToolClick={handleProjectToolClick} onMenuClick={handleMenuClick} settingsHref="/" />
+      <MobileMenu
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        projectId={params.projectId}
+        onToolClick={(tool) => { setMenuOpen(false); handleToolClick(tool) }}
+        onProjectToolClick={(tool) => { setMenuOpen(false); handleProjectToolClick(tool) }}
+        onNavigateHome={() => { setMenuOpen(false); router.push('/') }}
+      />
       <div className="flex-1 overflow-hidden">
         {children}
       </div>
