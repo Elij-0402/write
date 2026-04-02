@@ -2,13 +2,11 @@
 import { useState, useCallback } from 'react'
 import { TopBar } from '@/components/top-bar'
 import { SidePanel } from '@/components/side-panel'
-import { useRouter } from 'next/navigation'
 import { useSupabase } from '@/components/providers'
 import { Providers } from '@/components/providers'
 
 function AppLayoutInner({ children }: { children: React.ReactNode }) {
-  const { user } = useSupabase()
-  const router = useRouter()
+  const { loading } = useSupabase()
   const [panelOpen, setPanelOpen] = useState(false)
   const [activeTool, setActiveTool] = useState('')
   const [aiContent, setAiContent] = useState('')
@@ -21,9 +19,12 @@ function AppLayoutInner({ children }: { children: React.ReactNode }) {
     setPanelOpen(true)
   }, [])
 
-  if (!user) {
-    if (typeof window !== 'undefined') router.push('/login')
-    return null
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">加载中...</p>
+      </div>
+    )
   }
 
   return (
