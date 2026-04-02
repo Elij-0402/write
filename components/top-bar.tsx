@@ -20,9 +20,10 @@ interface TopBarProps {
   onToolClick: (tool: string) => void
   onProjectToolClick: (tool: string) => void
   onMenuClick: () => void
+  settingsHref?: string
 }
 
-export function TopBar({ projectTitle, onToolClick, onProjectToolClick, onMenuClick }: TopBarProps) {
+export function TopBar({ projectTitle, onToolClick, onProjectToolClick, onMenuClick, settingsHref }: TopBarProps) {
   return (
     <header className="h-12 border-b flex items-center px-4 gap-2 shrink-0">
       <Button variant="ghost" size="icon" onClick={onMenuClick} title="项目列表">
@@ -64,7 +65,7 @@ export function TopBar({ projectTitle, onToolClick, onProjectToolClick, onMenuCl
         ))}
       </div>
 
-      <Link href="/settings" className="inline-flex items-center justify-center h-9 w-9 rounded-md text-sm font-medium hover:bg-accent transition-colors">
+      <Link href={settingsHref || '/'} className="inline-flex items-center justify-center h-9 w-9 rounded-md text-sm font-medium hover:bg-accent transition-colors">
         <Settings className="w-4 h-4" />
       </Link>
     </header>
