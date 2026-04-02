@@ -12,8 +12,8 @@ export function StatusBar({ wordCount, chapterTitle, saveStatus }: StatusBarProp
       <span>{wordCount.toLocaleString()} 字</span>
       <div className="flex-1" />
       <span className={
-        saveStatus === 'saved' ? 'text-green-500' :
-        saveStatus === 'saving' ? 'text-yellow-500' : 'text-orange-500'
+        saveStatus === 'saved' ? 'text-success' :
+        saveStatus === 'saving' ? 'text-warning' : 'text-error'
       }>
         {saveStatus === 'saved' ? '已保存' : saveStatus === 'saving' ? '保存中...' : '未保存'}
       </span>

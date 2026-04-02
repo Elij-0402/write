@@ -51,7 +51,7 @@ export function SidePanel({
               <span className="text-sm">正在思考...</span>
             </div>
           ) : error ? (
-            <div className="text-sm text-red-500 p-4 bg-red-50 dark:bg-red-950 rounded">{error}</div>
+            <div className="text-sm text-destructive p-4 bg-destructive/10 rounded">{error}</div>
           ) : (
             <Textarea
               value={value}
