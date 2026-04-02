@@ -70,6 +70,11 @@ export function SidePanel({
             <Button variant="outline" onClick={onClose}>取消</Button>
           </div>
         )}
+        {mode === 'brainstorm' && (
+          <div className="px-4 py-3 border-t">
+            <Button variant="outline" onClick={onClose} className="w-full">关闭</Button>
+          </div>
+        )}
       </div>
     </Sheet>
   )
