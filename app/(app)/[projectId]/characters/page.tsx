@@ -66,7 +66,7 @@ export default function CharactersPage() {
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-4">
-      <Button variant="ghost" size="sm" onClick={() => router.push(`/p/${projectId}`)} className="mb-4">
+      <Button variant="ghost" size="sm" onClick={() => router.push(`/${projectId}`)} className="mb-4">
         <ArrowLeft className="w-4 h-4 mr-1" /> 返回章节
       </Button>
       <div className="flex items-center justify-between mb-6">

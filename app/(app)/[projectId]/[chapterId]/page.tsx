@@ -174,11 +174,11 @@ export default function ChapterEditorPage() {
         projectTitle={project?.title}
         onToolClick={handleToolClick}
         onProjectToolClick={() => {}}
-        onMenuClick={() => router.push(`/p/${projectId}`)}
+        onMenuClick={() => router.push(`/${projectId}`)}
       />
 
       <div className="flex items-center gap-2 px-4 py-2 border-b">
-        <Button variant="ghost" size="icon" onClick={() => router.push(`/p/${projectId}`)}>
+        <Button variant="ghost" size="icon" onClick={() => router.push(`/${projectId}`)}>
           <ArrowLeft className="w-4 h-4" />
         </Button>
         {editingTitle ? (
