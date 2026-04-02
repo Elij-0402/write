@@ -29,38 +29,40 @@ export function TopBar({ projectTitle, onToolClick, onProjectToolClick, onMenuCl
         <Menu className="w-4 h-4" />
       </Button>
 
-      <span className="text-sm font-medium text-muted-foreground">
+      <span className="text-sm font-medium text-muted-foreground truncate">
         {projectTitle || 'AI 小说工作台'}
       </span>
 
       <div className="flex-1" />
 
-      {AI_TOOLS.map(({ id, label, icon: Icon }) => (
-        <Button
-          key={id}
-          variant="ghost"
-          size="sm"
-          onClick={() => onToolClick(id)}
-          className={cn('gap-1.5', !projectTitle && 'opacity-50 pointer-events-none')}
-        >
-          <Icon className="w-3.5 h-3.5" />
-          <span className="text-xs">{label}</span>
-        </Button>
-      ))}
+      <div className="hidden md:flex items-center gap-1">
+        {AI_TOOLS.map(({ id, label, icon: Icon }) => (
+          <Button
+            key={id}
+            variant="ghost"
+            size="sm"
+            onClick={() => onToolClick(id)}
+            className={cn('gap-1.5', !projectTitle && 'opacity-50 pointer-events-none')}
+          >
+            <Icon className="w-3.5 h-3.5" />
+            <span className="text-xs">{label}</span>
+          </Button>
+        ))}
 
-      <div className="h-4 w-px bg-border mx-1" />
-      {PROJECT_TOOLS.map(({ id, label, icon: Icon }) => (
-        <Button
-          key={id}
-          variant="ghost"
-          size="sm"
-          onClick={() => onProjectToolClick(id)}
-          className="gap-1.5"
-        >
-          <Icon className="w-3.5 h-3.5" />
-          <span className="text-xs">{label}</span>
-        </Button>
-      ))}
+        <div className="h-4 w-px bg-border mx-1" />
+        {PROJECT_TOOLS.map(({ id, label, icon: Icon }) => (
+          <Button
+            key={id}
+            variant="ghost"
+            size="sm"
+            onClick={() => onProjectToolClick(id)}
+            className="gap-1.5"
+          >
+            <Icon className="w-3.5 h-3.5" />
+            <span className="text-xs">{label}</span>
+          </Button>
+        ))}
+      </div>
 
       <Link href="/settings" className="inline-flex items-center justify-center h-9 w-9 rounded-md text-sm font-medium hover:bg-accent transition-colors">
         <Settings className="w-4 h-4" />
