@@ -87,7 +87,7 @@ export default function ProjectPage() {
           </div>
         )}
         {project?.chapters?.map((ch: Chapter) => (
-          <div key={ch.id} className="flex items-center gap-3 p-4 border rounded-lg hover:bg-accent/50 transition-colors group cursor-pointer"
+          <div key={ch.id} className="flex items-center gap-3 p-4 border rounded-lg hover:bg-surface-warm transition-colors group cursor-pointer"
             role="button" tabIndex={0} onClick={() => router.push(`/${projectId}/${ch.id}`)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); router.push(`/${projectId}/${ch.id}`) } }}>
             <FileText className="w-4 h-4 shrink-0 text-muted-foreground" />
             <span className="flex-1">{ch.title}</span>
@@ -96,7 +96,7 @@ export default function ProjectPage() {
               <AlertDialogTrigger asChild>
                 <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 shrink-0"
                   onClick={e => e.stopPropagation()}>
-                  <Trash2 className="w-4 h-4 text-red-500" />
+                  <Trash2 className="w-4 h-4 text-destructive" />
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
@@ -108,7 +108,7 @@ export default function ProjectPage() {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>取消</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => deleteChapter(ch.id)} className="bg-red-600 hover:bg-red-700">
+                  <AlertDialogAction onClick={() => deleteChapter(ch.id)} className="bg-destructive hover:bg-destructive/90">
                     删除
                   </AlertDialogAction>
                 </AlertDialogFooter>

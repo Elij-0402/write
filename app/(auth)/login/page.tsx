@@ -40,7 +40,7 @@ export default function LoginPage() {
           <Label htmlFor="password">密码</Label>
           <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
         </div>
-        {error && <p className="text-sm text-red-500">{error}</p>}
+        {error && <p className="text-sm text-destructive">{error}</p>}
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? '登录中...' : '登录'}
         </Button>

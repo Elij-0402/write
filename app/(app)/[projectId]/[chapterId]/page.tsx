@@ -191,7 +191,7 @@ export default function ChapterEditorPage() {
         )}
       </div>
 
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden bg-surface-warm">
         <TiptapEditor
           content={content}
           onChange={setContent}

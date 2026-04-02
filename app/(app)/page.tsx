@@ -86,7 +86,7 @@ export default function ProjectsPage() {
                 <Label>简介（可选）</Label>
                 <Input value={newDescription} onChange={e => setNewDescription(e.target.value)} placeholder="一句话描述你的故事" />
               </div>
-              {error && <p className="text-sm text-red-500">{error}</p>}
+              {error && <p className="text-sm text-destructive">{error}</p>}
               <Button type="submit" className="w-full" disabled={!newTitle.trim() || creating}>
                 {creating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />创建中...</> : '创建'}
               </Button>
@@ -105,7 +105,7 @@ export default function ProjectsPage() {
       ) : (
         <div className="space-y-3">
           {projects.map(project => (
-            <div key={project.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors group">
+            <div key={project.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-surface-warm transition-colors group">
               <div className="flex-1 cursor-pointer" role="button" tabIndex={0} onClick={() => router.push(`/${project.id}`)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); router.push(`/${project.id}`) } }}>
                 <h3 className="font-medium">{project.title}</h3>
                 <p className="text-sm text-muted-foreground">{project.description || '暂无描述'}</p>
@@ -113,7 +113,7 @@ export default function ProjectsPage() {
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100">
-                    <Trash2 className="w-4 h-4 text-red-500" />
+                    <Trash2 className="w-4 h-4 text-destructive" />
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
@@ -125,7 +125,7 @@ export default function ProjectsPage() {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>取消</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => deleteProject(project.id)} className="bg-red-600 hover:bg-red-700">
+                    <AlertDialogAction onClick={() => deleteProject(project.id)} className="bg-destructive hover:bg-destructive/90">
                       删除
                     </AlertDialogAction>
                   </AlertDialogFooter>

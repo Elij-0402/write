@@ -40,7 +40,7 @@ export default function RegisterPage() {
           <Label htmlFor="password">密码（至少 6 位）</Label>
           <Input id="password" type="password" minLength={6} value={password} onChange={e => setPassword(e.target.value)} required />
         </div>
-        {error && <p className="text-sm text-red-500">{error}</p>}
+        {error && <p className="text-sm text-destructive">{error}</p>}
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? '注册中...' : '注册'}
         </Button>
