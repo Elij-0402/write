@@ -1,4 +1,6 @@
 'use client'
+export const dynamic = 'force-dynamic'
+
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -11,12 +13,12 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const supabase = createClient()
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError('')
+    const supabase = createClient()
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) setError(error.message)
     else window.location.href = '/'
@@ -25,6 +27,7 @@ export default function LoginPage() {
 
   async function handleMagicLink() {
     if (!email) { setError('请先输入邮箱'); return }
+    const supabase = createClient()
     await supabase.auth.signInWithOtp({ email })
     alert('发送成功，请查收邮件')
   }
