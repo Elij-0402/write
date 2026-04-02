@@ -4,7 +4,6 @@ import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { TiptapEditor } from '@/components/editor/tiptap-editor'
 import { StatusBar } from '@/components/status-bar'
-import { TopBar } from '@/components/top-bar'
 import { SidePanel } from '@/components/side-panel'
 import type { Chapter, Project } from '@/types/database'
 import { ArrowLeft } from 'lucide-react'
@@ -169,15 +168,8 @@ export default function ChapterEditorPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col">
-      <TopBar
-        projectTitle={project?.title}
-        onToolClick={handleToolClick}
-        onProjectToolClick={() => {}}
-        onMenuClick={() => router.push(`/${projectId}`)}
-      />
-
-      <div className="flex items-center gap-2 px-4 py-2 border-b">
+    <div className="flex flex-col h-full">
+      <div className="flex items-center gap-2 px-4 py-2 border-b shrink-0">
         <Button variant="ghost" size="icon" onClick={() => router.push(`/${projectId}`)}>
           <ArrowLeft className="w-4 h-4" />
         </Button>
