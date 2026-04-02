@@ -5,6 +5,7 @@ import Placeholder from '@tiptap/extension-placeholder'
 import Typography from '@tiptap/extension-typography'
 import { useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
+import { countChineseWords } from '@/lib/utils/tiptap'
 
 interface TiptapEditorProps {
   content: string
@@ -29,7 +30,7 @@ export function TiptapEditor({ content, onChange, onWordCountChange, placeholder
     onUpdate: ({ editor }) => {
       const json = JSON.stringify(editor.getJSON())
       const text = editor.getText()
-      const words = text.trim() ? text.trim().split(/\s+/).length : 0
+      const words = countChineseWords(text)
       onChange(json)
       onWordCountChange(words)
     },
