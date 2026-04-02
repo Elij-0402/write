@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Plus, FileText, ArrowLeft, Trash2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import type { Project, Chapter } from '@/types/database'
 
 export default function ProjectPage() {
@@ -91,10 +92,28 @@ export default function ProjectPage() {
             <FileText className="w-4 h-4 shrink-0 text-muted-foreground" />
             <span className="flex-1">{ch.title}</span>
             <span className="text-xs text-muted-foreground">{ch.word_count || 0} 字</span>
-            <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 shrink-0"
-              onClick={e => { e.stopPropagation(); deleteChapter(ch.id) }}>
-              <Trash2 className="w-4 h-4 text-red-500" />
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 shrink-0"
+                  onClick={e => e.stopPropagation()}>
+                  <Trash2 className="w-4 h-4 text-red-500" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>确认删除</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    确定要删除章节《{ch.title}》吗？此操作不可撤销。
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>取消</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => deleteChapter(ch.id)} className="bg-red-600 hover:bg-red-700">
+                    删除
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         ))}
       </div>
