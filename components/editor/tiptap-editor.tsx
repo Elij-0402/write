@@ -12,9 +12,10 @@ interface TiptapEditorProps {
   onWordCountChange: (count: number) => void
   placeholder?: string
   className?: string
+  editorRef?: React.MutableRefObject<any>
 }
 
-export function TiptapEditor({ content, onChange, onWordCountChange, placeholder, className }: TiptapEditorProps) {
+export function TiptapEditor({ content, onChange, onWordCountChange, placeholder, className, editorRef }: TiptapEditorProps) {
   const lastSavedRef = useRef(content)
 
   const editor = useEditor({
@@ -55,10 +56,10 @@ export function TiptapEditor({ content, onChange, onWordCountChange, placeholder
 
   // 暴露 editor 实例用于外部插入
   useEffect(() => {
-    if (editor && !(editor as any)._exposed) {
-      (editor as any)._exposed = true
+    if (editor && editorRef) {
+      editorRef.current = editor
     }
-  }, [editor])
+  }, [editor, editorRef])
 
   return <EditorContent editor={editor} className="flex-1 overflow-auto" />
 }
