@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef, useCallback, type MutableRefObject } from 'react'
+import { useState, useRef, useCallback, useEffect, type MutableRefObject } from 'react'
 
 export function useAiTools(editorRef: MutableRefObject<any>, chapterId: string) {
   const [panelOpen, setPanelOpen] = useState(false)
@@ -10,12 +10,47 @@ export function useAiTools(editorRef: MutableRefObject<any>, chapterId: string) 
   const [brainstormInput, setBrainstormInput] = useState('')
   const [contextMetadata, setContextMetadata] = useState<any>(null)
   const abortRef = useRef<AbortController | null>(null)
+  const requestIdRef = useRef(0)
 
   const abortPrevious = useCallback(() => {
     if (abortRef.current) abortRef.current.abort()
     abortRef.current = new AbortController()
     return abortRef.current.signal
   }, [])
+
+  useEffect(() => {
+    return () => { abortRef.current?.abort() }
+  }, [])
+
+  const callAiEndpoint = useCallback(async (url: string, body: Record<string, unknown>) => {
+    setPanelOpen(true)
+    setAiLoading(true)
+    setAiError('')
+    setAiContent('')
+    const signal = abortPrevious()
+    const currentRequestId = ++requestIdRef.current
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal,
+      })
+      const data = await res.json()
+      if (requestIdRef.current !== currentRequestId) return
+      if (data.error) setAiError(data.error)
+      else {
+        setAiContent(data.result)
+        if (data.metadata) setContextMetadata(data.metadata)
+      }
+    } catch (e: any) {
+      if (requestIdRef.current !== currentRequestId) return
+      if (e.name !== 'AbortError') setAiError(e.message)
+    }
+    if (requestIdRef.current === currentRequestId) {
+      setAiLoading(false)
+    }
+  }, [abortPrevious])
 
   const handleToolClick = useCallback(async (tool: string) => {
     setActiveTool(tool)
@@ -37,89 +72,30 @@ export function useAiTools(editorRef: MutableRefObject<any>, chapterId: string) 
         setPanelOpen(true)
         return
       }
-      setPanelOpen(true)
-      setAiLoading(true)
-      setAiError('')
-      setAiContent('')
-      const signal = abortPrevious()
-      try {
-        const res = await fetch('/api/ai/write', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chapterId, cursorPosition }),
-          signal,
-        })
-        const data = await res.json()
-        if (data.error) setAiError(data.error)
-        else {
-          setAiContent(data.result)
-          if (data.metadata) setContextMetadata(data.metadata)
-        }
-      } catch (e: any) {
-        if (e.name !== 'AbortError') setAiError(e.message)
-      }
-      setAiLoading(false)
+      callAiEndpoint('/api/ai/write', { chapterId, cursorPosition })
       return
     }
 
     if (tool === 'rewrite') {
-      const selectedText = editor?.state?.selection?.content()?.content?.firstChild?.textContent || ''
+      const { from, to } = editor?.state?.selection || {}
+      const selectedText = (from !== undefined && to !== undefined && from !== to)
+        ? editor.state.doc.textBetween(from, to, '\n')
+        : ''
       if (!selectedText || selectedText.trim().length < 5) {
         alert('请先选中要改写的文字（至少 5 个字）')
         return
       }
-      setPanelOpen(true)
-      setAiLoading(true)
-      setAiError('')
-      setAiContent('')
-      const signal = abortPrevious()
-      try {
-        const res = await fetch('/api/ai/rewrite', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chapterId, selectedText, cursorPosition }),
-          signal,
-        })
-        const data = await res.json()
-        if (data.error) setAiError(data.error)
-        else {
-          setAiContent(data.result)
-          if (data.metadata) setContextMetadata(data.metadata)
-        }
-      } catch (e: any) {
-        if (e.name !== 'AbortError') setAiError(e.message)
-      }
-      setAiLoading(false)
+      callAiEndpoint('/api/ai/rewrite', { chapterId, selectedText, cursorPosition })
       return
     }
 
     setPanelOpen(true)
-  }, [chapterId, editorRef, abortPrevious])
+  }, [chapterId, editorRef, callAiEndpoint])
 
   const handleBrainstormSubmit = useCallback(async () => {
     if (!brainstormInput.trim()) return
-    setAiLoading(true)
-    setAiError('')
-    setAiContent('')
-    const signal = abortPrevious()
-    try {
-      const res = await fetch('/api/ai/brainstorm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chapterId, topic: brainstormInput }),
-        signal,
-      })
-      const data = await res.json()
-      if (data.error) setAiError(data.error)
-      else {
-        setAiContent(data.result)
-        if (data.metadata) setContextMetadata(data.metadata)
-      }
-    } catch (e: any) {
-      if (e.name !== 'AbortError') setAiError(e.message)
-    }
-    setAiLoading(false)
-  }, [brainstormInput, chapterId, abortPrevious])
+    callAiEndpoint('/api/ai/brainstorm', { chapterId, topic: brainstormInput })
+  }, [brainstormInput, chapterId, callAiEndpoint])
 
   const handleInsert = useCallback(() => {
     if (!aiContent || !editorRef.current) return

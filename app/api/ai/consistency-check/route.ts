@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getAIProvider } from '@/lib/ai/deepseek'
 import { assembleContext } from '@/lib/ai/context-assembler'
+import { buildConsistencyPrompt } from '@/lib/prompts/consistency'
 
 export async function POST(req: Request) {
   try {
@@ -12,6 +13,9 @@ export async function POST(req: Request) {
     }
 
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const ctx = await assembleContext(supabase, chapterId, Infinity, 'consistency')
 
     if (ctx.textWindow.length < 100) {
@@ -22,37 +26,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: '没有角色卡数据。请先创建角色卡，一致性检查需要对照角色设定来发现冲突。' }, { status: 400 })
     }
 
-    let prompt = '你是一位专业的小说编辑。请仔细检查以下章节内容，对照角色设定和世界观，找出设定冲突。\n'
-    prompt += '\n## 角色设定\n'
-    for (const ch of ctx.characters) {
-      prompt += `\n【${ch.name}】\n`
-      if (ch.traits.appearance) prompt += `外貌：${ch.traits.appearance}\n`
-      if (ch.traits.personality) prompt += `性格：${ch.traits.personality}\n`
-      if (ch.traits.background) prompt += `背景：${ch.traits.background}\n`
-      if (ch.traits.motivation) prompt += `动机：${ch.traits.motivation}\n`
-      if (ch.traits.relationships) prompt += `关系：${ch.traits.relationships}\n`
-    }
-
-    if (ctx.worldbuilding.length > 0) {
-      prompt += '\n## 世界观设定\n'
-      for (const w of ctx.worldbuilding) {
-        prompt += `- ${w.title}：${w.content}\n`
-      }
-    }
-
-    prompt += `\n## 章节内容\n${ctx.textWindow}\n`
-    prompt += `\n请以 JSON 数组格式返回发现的冲突。每个冲突包含：
-{
-  "type": "character" | "timeline" | "address" | "worldbuilding",
-  "severity": "high" | "medium" | "low",
-  "description": "冲突描述",
-  "quote": "原文引用",
-  "reference": "对应的设定内容",
-  "suggestion": "修改建议"
-}
-
-如果没有发现冲突，返回空数组 []。
-只输出 JSON，不要加任何其他文字。`
+    const prompt = buildConsistencyPrompt(ctx)
 
     const provider = getAIProvider()
     const raw = await provider.complete(prompt, { max_tokens: 2048, temperature: 0.3 })
@@ -60,12 +34,23 @@ export async function POST(req: Request) {
     let conflicts = []
     try {
       const cleaned = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
-      conflicts = JSON.parse(cleaned)
-      if (!Array.isArray(conflicts)) conflicts = []
+      const parsed = JSON.parse(cleaned)
+      if (!Array.isArray(parsed)) {
+        conflicts = []
+      } else {
+        const validTypes = ['character', 'timeline', 'address', 'worldbuilding']
+        const validSeverities = ['high', 'medium', 'low']
+        conflicts = parsed.filter((item: any) =>
+          item &&
+          typeof item.type === 'string' && validTypes.includes(item.type) &&
+          typeof item.severity === 'string' && validSeverities.includes(item.severity) &&
+          typeof item.description === 'string' && item.description.length > 0
+        )
+      }
     } catch {
+      console.error('Failed to parse AI consistency response:', raw.slice(0, 500))
       return NextResponse.json({
         error: 'AI 返回了无法解析的结果，请重试',
-        raw: raw.slice(0, 200),
       }, { status: 422 })
     }
 

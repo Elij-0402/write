@@ -41,7 +41,7 @@ describe('extractTextFromJson', () => {
         },
       ],
     })
-    expect(extractTextFromJson(json)).toBe('第一段第二段')
+    expect(extractTextFromJson(json)).toBe('第一段\n第二段')
   })
 })
 

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
 import { Loader2, PenLine, RefreshCw, Lightbulb } from 'lucide-react'
+import type { ContextMetadata } from '@/lib/ai/context-assembler'
 
 interface WritingCockpitProps {
   open: boolean
@@ -16,18 +17,25 @@ interface WritingCockpitProps {
   onToolClick: (tool: string) => void
   onAiContentChange: (v: string) => void
   onInsert: () => void
+  onReplace: () => void
   brainstormInput: string
   onBrainstormInputChange: (v: string) => void
   onBrainstormSubmit: () => void
-  contextMetadata?: any
+  onConsistencyCheck: () => void
+  consistencyLoading?: boolean
+  consistencyResult?: any
+  contextMetadata?: ContextMetadata
 }
 
 export function WritingCockpit({
   open, onClose, activeTool, aiContent, aiLoading, aiError,
-  onToolClick, onAiContentChange, onInsert,
+  onToolClick, onAiContentChange, onInsert, onReplace,
   brainstormInput, onBrainstormInputChange, onBrainstormSubmit,
+  onConsistencyCheck, consistencyLoading, consistencyResult,
   contextMetadata,
 }: WritingCockpitProps) {
+  const tabTriggerClass = 'rounded-none border-b-2 border-transparent text-[13px] font-medium font-sans text-muted data-[state=active]:text-primary data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none'
+
   return (
     <Sheet open={open} onClose={onClose} className="bg-surface">
       <div className="flex flex-col h-full">
@@ -35,25 +43,25 @@ export function WritingCockpit({
           <TabsList className="rounded-none border-b border-default bg-transparent px-4 h-10 justify-start gap-0">
             <TabsTrigger
               value="writing"
-              className="rounded-none border-b-2 border-transparent text-[13px] font-medium font-sans text-muted data-[state=active]:text-primary data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              className={tabTriggerClass}
             >
               写作
             </TabsTrigger>
             <TabsTrigger
               value="check"
-              className="rounded-none border-b-2 border-transparent text-[13px] font-medium font-sans text-muted data-[state=active]:text-primary data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              className={tabTriggerClass}
             >
               检查
             </TabsTrigger>
             <TabsTrigger
               value="characters"
-              className="rounded-none border-b-2 border-transparent text-[13px] font-medium font-sans text-muted data-[state=active]:text-primary data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              className={tabTriggerClass}
             >
               角色
             </TabsTrigger>
             <TabsTrigger
               value="context"
-              className="rounded-none border-b-2 border-transparent text-[13px] font-medium font-sans text-muted data-[state=active]:text-primary data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              className={tabTriggerClass}
             >
               透视
             </TabsTrigger>
@@ -136,7 +144,7 @@ export function WritingCockpit({
                     <Button onClick={onInsert} className="flex-1">
                       插入到光标
                     </Button>
-                    <Button variant="outline" onClick={onClose}>
+                    <Button variant="outline" onClick={onReplace}>
                       替换选中
                     </Button>
                   </div>
@@ -148,10 +156,33 @@ export function WritingCockpit({
           {/* 检查 tab */}
           <TabsContent value="check" className="flex-1 overflow-auto p-4 mt-0">
             <div className="space-y-3">
-              <Button className="w-full">运行一致性检查</Button>
-              <p className="text-sm text-muted text-center py-8">
-                点击上方按钮运行检查
-              </p>
+              <Button className="w-full" onClick={onConsistencyCheck} disabled={consistencyLoading}>
+                {consistencyLoading ? '检查中...' : '运行一致性检查'}
+              </Button>
+              {consistencyLoading ? (
+                <div className="flex flex-col items-center justify-center h-40 gap-3 text-muted">
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                  <span className="text-sm">正在检查一致性...</span>
+                </div>
+              ) : consistencyResult ? (
+                <div className="space-y-2">
+                  {consistencyResult.conflicts?.length === 0 ? (
+                    <p className="text-sm text-success text-center py-8">未发现设定冲突</p>
+                  ) : (
+                    consistencyResult.conflicts?.map((c: any, i: number) => (
+                      <div key={i} className="p-3 rounded-lg bg-warning/10 text-sm space-y-1">
+                        <div className="font-medium">{c.description}</div>
+                        {c.quote && <div className="text-muted text-xs">「{c.quote}」</div>}
+                        {c.suggestion && <div className="text-xs text-primary">{c.suggestion}</div>}
+                      </div>
+                    ))
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-muted text-center py-8">
+                  点击上方按钮检查角色设定和情节一致性
+                </p>
+              )}
             </div>
           </TabsContent>
 

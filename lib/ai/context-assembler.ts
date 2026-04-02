@@ -72,6 +72,22 @@ function truncateToTokenBudget(text: string, tokenBudget: number): string {
   return text.slice(-approxChars)
 }
 
+export function createEmptyContext(taskType: TaskType): ContextPackage {
+  return {
+    textWindow: '',
+    characters: [],
+    worldbuilding: [],
+    styleGuide: null,
+    metadata: {
+      charactersMatched: [],
+      worldbuildingUsed: [],
+      tokenBudget: { text: 0, chars: 0, world: 0, style: 0 },
+      totalTokensEstimated: 0,
+      taskType,
+    },
+  }
+}
+
 export async function assembleContext(
   supabase: SupabaseClient,
   chapterId: string,
@@ -100,17 +116,17 @@ export async function assembleContext(
   )
 
   const [charactersResult, worldbuildingResult, projectResult] = await Promise.all([
-    supabase.from('characters').select('name, traits').eq('project_id', projectId).then(
+    supabase.from('characters').select('name, traits').eq('project_id', projectId).limit(50).then(
       (r) => r,
-      () => ({ data: null, error: { message: 'failed' } }),
+      (err) => { console.warn('characters query failed:', err); return { data: null, error: { message: 'failed' } } },
     ),
-    supabase.from('worldbuilding').select('title, content, category').eq('project_id', projectId).then(
+    supabase.from('worldbuilding').select('title, content, category').eq('project_id', projectId).limit(100).then(
       (r) => r,
-      () => ({ data: null, error: { message: 'failed' } }),
+      (err) => { console.warn('worldbuilding query failed:', err); return { data: null, error: { message: 'failed' } } },
     ),
     supabase.from('projects').select('style_guide').eq('id', projectId).single().then(
       (r) => r,
-      () => ({ data: null, error: { message: 'failed' } }),
+      (err) => { console.warn('project style_guide query failed:', err); return { data: null, error: { message: 'failed' } } },
     ),
   ])
 

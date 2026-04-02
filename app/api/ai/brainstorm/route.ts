@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getAIProvider } from '@/lib/ai/deepseek'
-import { assembleContext } from '@/lib/ai/context-assembler'
+import { assembleContext, createEmptyContext } from '@/lib/ai/context-assembler'
 import { buildBrainstormPrompt } from '@/lib/prompts/brainstorm'
 
 export async function POST(req: Request) {
@@ -14,6 +14,9 @@ export async function POST(req: Request) {
 
     if (chapterId) {
       const supabase = await createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
       const ctx = await assembleContext(supabase, chapterId, Infinity, 'brainstorm')
       const provider = getAIProvider()
       const prompt = buildBrainstormPrompt(topic, ctx)
@@ -22,20 +25,12 @@ export async function POST(req: Request) {
     }
 
     // Fallback: no chapter context (e.g. called from non-editor page)
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const provider = getAIProvider()
-    const emptyCtx = {
-      textWindow: '',
-      characters: [],
-      worldbuilding: [],
-      styleGuide: null,
-      metadata: {
-        charactersMatched: [],
-        worldbuildingUsed: [],
-        tokenBudget: { text: 0, chars: 0, world: 0, style: 0 },
-        totalTokensEstimated: 0,
-        taskType: 'brainstorm' as const,
-      },
-    }
+    const emptyCtx = createEmptyContext('brainstorm')
     const prompt = buildBrainstormPrompt(topic, emptyCtx)
     const result = await provider.complete(prompt, { max_tokens: 1536, temperature: 0.9 })
     return NextResponse.json({ result: result.trim() })

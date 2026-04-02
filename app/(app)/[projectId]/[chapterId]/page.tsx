@@ -1,5 +1,5 @@
 'use client'
-import { useRef } from 'react'
+import { useRef, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { TiptapEditor } from '@/components/editor/tiptap-editor'
 import { StatusBar } from '@/components/status-bar'
@@ -17,6 +17,38 @@ export default function ChapterEditorPage() {
 
   const editor = useChapterEditor(chapterId)
   const ai = useAiTools(editorRef, chapterId)
+
+  const [consistencyLoading, setConsistencyLoading] = useState(false)
+  const [consistencyResult, setConsistencyResult] = useState<any>(null)
+
+  const handleConsistencyCheck = useCallback(async () => {
+    setConsistencyLoading(true)
+    setConsistencyResult(null)
+    try {
+      const res = await fetch('/api/ai/consistency-check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chapterId }),
+      })
+      const data = await res.json()
+      setConsistencyResult(data)
+    } catch (e: any) {
+      setConsistencyResult({ error: e.message })
+    }
+    setConsistencyLoading(false)
+  }, [chapterId])
+
+  const handleReplace = useCallback(() => {
+    if (!ai.aiContent || !editorRef.current) return
+    const { from, to } = editorRef.current.state.selection
+    if (from === to) {
+      editorRef.current.commands.insertContent(ai.aiContent)
+    } else {
+      editorRef.current.chain().deleteRange({ from, to }).insertContent(ai.aiContent).run()
+    }
+    ai.setPanelOpen(false)
+    ai.setAiContent('')
+  }, [ai.aiContent, editorRef, ai])
 
   return (
     <div className="flex flex-col h-full">
@@ -68,9 +100,13 @@ export default function ChapterEditorPage() {
         onToolClick={ai.handleToolClick}
         onAiContentChange={ai.setAiContent}
         onInsert={ai.handleInsert}
+        onReplace={handleReplace}
         brainstormInput={ai.brainstormInput}
         onBrainstormInputChange={ai.setBrainstormInput}
         onBrainstormSubmit={ai.handleBrainstormSubmit}
+        onConsistencyCheck={handleConsistencyCheck}
+        consistencyLoading={consistencyLoading}
+        consistencyResult={consistencyResult}
         contextMetadata={ai.contextMetadata}
       />
     </div>

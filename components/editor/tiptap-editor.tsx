@@ -37,7 +37,7 @@ export function TiptapEditor({ content, onChange, onWordCountChange, placeholder
     editorProps: {
       attributes: {
         class: cn(
-          'prose prose-lg dark:prose-invert max-w-none focus:outline-none min-h-[500px] font-serif leading-[2] text-lg md:text-xl py-12 px-5 md:px-20',
+          'prose prose-lg dark:prose-invert max-w-none focus:outline-none min-h-[500px] font-serif leading-[2] text-lg md:text-xl py-6 md:py-12 px-5 md:px-20',
           className
         ),
       },
