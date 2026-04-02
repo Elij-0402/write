@@ -27,9 +27,17 @@ export default function LoginPage() {
 
   async function handleMagicLink() {
     if (!email) { setError('请先输入邮箱'); return }
-    const supabase = createClient()
-    await supabase.auth.signInWithOtp({ email })
-    alert('发送成功，请查收邮件')
+    setLoading(true)
+    setError('')
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithOtp({ email })
+      if (error) setError(error.message)
+      else setError('发送成功，请查收邮件')
+    } catch {
+      setError('发送失败，请重试')
+    }
+    setLoading(false)
   }
 
   return (
