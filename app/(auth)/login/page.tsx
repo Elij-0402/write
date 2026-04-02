@@ -25,21 +25,6 @@ export default function LoginPage() {
     setLoading(false)
   }
 
-  async function handleMagicLink() {
-    if (!email) { setError('请先输入邮箱'); return }
-    setLoading(true)
-    setError('')
-    try {
-      const supabase = createClient()
-      const { error } = await supabase.auth.signInWithOtp({ email })
-      if (error) setError(error.message)
-      else setError('发送成功，请查收邮件')
-    } catch {
-      setError('发送失败，请重试')
-    }
-    setLoading(false)
-  }
-
   return (
     <div className="w-full max-w-sm space-y-6">
       <div className="text-center">
@@ -60,11 +45,6 @@ export default function LoginPage() {
           {loading ? '登录中...' : '登录'}
         </Button>
       </form>
-      <div className="text-center text-sm">
-        <button onClick={handleMagicLink} className="text-muted-foreground hover:underline" type="button">
-          使用魔法链接登录
-        </button>
-      </div>
       <p className="text-center text-sm">
         没有账号？<Link href="/register" className="underline">注册</Link>
       </p>
