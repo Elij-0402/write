@@ -16,9 +16,8 @@ export async function POST(req: Request) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const provider = await getUserAIProvider()
-
     if (chapterId) {
+      const provider = await getUserAIProvider()
       const ctx = await assembleContext(supabase, chapterId, Infinity, 'brainstorm')
       const prompt = buildBrainstormPrompt(topic, ctx)
       const result = await provider.complete(prompt, { max_tokens: 1536, temperature: 0.9 })
@@ -26,6 +25,7 @@ export async function POST(req: Request) {
     }
 
     // Fallback: no chapter context (e.g. called from non-editor page)
+    const provider = await getUserAIProvider()
     const emptyCtx = createEmptyContext('brainstorm')
     const prompt = buildBrainstormPrompt(topic, emptyCtx)
     const result = await provider.complete(prompt, { max_tokens: 1536, temperature: 0.9 })

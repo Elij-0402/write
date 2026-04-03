@@ -1,4 +1,5 @@
 'use client'
+import { useEffect } from 'react'
 import { useUserAIModels } from '@/hooks/use-user-ai-models'
 import { updateModel } from '@/hooks/use-user-ai-models'
 import {
@@ -17,6 +18,8 @@ interface ModelSwitcherProps {
 
 export function ModelSwitcher({ currentModelId, onSwitch }: ModelSwitcherProps) {
   const { models, fetchModels } = useUserAIModels()
+
+  useEffect(() => { fetchModels() }, [fetchModels])
 
   const handleSwitch = async (modelId: string) => {
     await updateModel(modelId, { is_default: true })

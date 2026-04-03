@@ -27,7 +27,7 @@ export function useUserAIModels() {
     await fetchModels()
   }, [fetchModels])
 
-  const updateModel = useCallback(async (id: string, updates: Partial<UserAIModel>) => {
+  const updateModelFn = useCallback(async (id: string, updates: Partial<UserAIModel>) => {
     await updateUserAIModel(id, updates)
     await fetchModels()
   }, [fetchModels])
@@ -47,10 +47,8 @@ export function useUserAIModels() {
     error,
     fetchModels,
     createModel,
-    updateModel,
+    updateModel: updateModelFn,
     deleteModel,
     getDefaultModel,
   }
 }
-
-export { updateUserAIModel as updateModel, deleteUserAIModel as deleteModel } from '@/lib/ai-model-operations'

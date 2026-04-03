@@ -62,6 +62,7 @@ export async function updateUserAIModel(id: string, updates: Partial<UserAIModel
     .from('user_ai_models')
     .update(updates)
     .eq('id', id)
+    .eq('user_id', user.id)
 
   if (error) throw error
 }
@@ -83,6 +84,7 @@ export async function deleteUserAIModel(id: string) {
     .from('user_ai_models')
     .delete()
     .eq('id', id)
+    .eq('user_id', user.id)
 
   if (error) throw error
 
