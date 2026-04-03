@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
+import { ModelSwitcher } from './model-switcher'
 
 interface SidePanelProps {
   open: boolean
@@ -30,6 +31,7 @@ export function SidePanel({
       <div className="flex flex-col h-full">
         <div className="flex items-center justify-between px-4 py-3 border-b">
           <h2 className="font-medium">{title}</h2>
+          <ModelSwitcher />
         </div>
 
         <div className="flex-1 overflow-auto p-4 space-y-3">
