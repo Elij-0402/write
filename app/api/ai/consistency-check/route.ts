@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getAIProvider } from '@/lib/ai/deepseek'
+import { getUserAIProvider } from '@/lib/ai/get-user-provider'
 import { assembleContext } from '@/lib/ai/context-assembler'
 import { buildConsistencyPrompt } from '@/lib/prompts/consistency'
 
@@ -27,8 +27,7 @@ export async function POST(req: Request) {
     }
 
     const prompt = buildConsistencyPrompt(ctx)
-
-    const provider = getAIProvider()
+    const provider = await getUserAIProvider()
     const raw = await provider.complete(prompt, { max_tokens: 2048, temperature: 0.3 })
 
     let conflicts = []
@@ -49,9 +48,7 @@ export async function POST(req: Request) {
       }
     } catch {
       console.error('Failed to parse AI consistency response:', raw.slice(0, 500))
-      return NextResponse.json({
-        error: 'AI 返回了无法解析的结果，请重试',
-      }, { status: 422 })
+      return NextResponse.json({ error: 'AI 返回了无法解析的结果，请重试' }, { status: 422 })
     }
 
     return NextResponse.json({ conflicts, metadata: ctx.metadata })
@@ -63,6 +60,9 @@ export async function POST(req: Request) {
     }
     if (msg.includes('timeout') || msg.includes('Timeout')) {
       return NextResponse.json({ error: 'AI 响应超时，请重试' }, { status: 504 })
+    }
+    if (msg.includes('未配置 AI 模型')) {
+      return NextResponse.json({ error: msg }, { status: 400 })
     }
     return NextResponse.json({ error: msg }, { status: 500 })
   }

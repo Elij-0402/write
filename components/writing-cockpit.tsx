@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
 import { Loader2, PenLine, RefreshCw, Lightbulb } from 'lucide-react'
+import { ModelSwitcher } from './model-switcher'
 import type { ContextMetadata } from '@/lib/ai/context-assembler'
 
 interface WritingCockpitProps {
@@ -65,6 +66,8 @@ export function WritingCockpit({
             >
               透视
             </TabsTrigger>
+            <div className="flex-1" />
+            <ModelSwitcher />
           </TabsList>
 
           {/* 写作 tab */}
